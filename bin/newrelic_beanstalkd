@@ -7,7 +7,7 @@ require 'beaneater'
 module BeanstalkdPlugin
   class Agent < NewRelic::Plugin::Agent::Base
     agent_guid 'io.joos.newrelic.plugin.beanstalkd'
-    agent_version '0.0.1'
+    agent_version '0.0.2'
     agent_config_options :name, :host, :port
 
     def initialize context, options = {}
@@ -41,61 +41,51 @@ module BeanstalkdPlugin
     end
 
     def report_server(stats)
-      report_server_metrics "Server/#{stats['name']}", stats
+      report_server_metrics "Server", stats
     end
 
     def report_tube_metrics(metric, stats)
-      metric_name = "Beanstalkd/#{metric}"
+      metric_prefix = "Beanstalkd/#{metric}/"
 
       percent_busy = stats[:current_watching] > 0 ? (stats[:current_jobs_reserved] / stats[:current_watching]) * 100 : 0
       percent_idle = 100 - percent_busy
 
-      report_metric metric_name, 'Jobs/Urgent',     stats[:current_jobs_urgent]
-      report_metric metric_name, 'Jobs/Idle',       stats[:current_jobs_ready]
-      report_metric metric_name, 'Jobs/Running',    stats[:current_jobs_reserved]
-      report_metric metric_name, 'Jobs/Delayed',    stats[:current_jobs_delayed]
-      report_metric metric_name, 'Jobs/Buried',     stats[:current_jobs_buried]
-
-      report_metric metric_name, 'TotalJobs',       stats[:total_jobs]
-
-      report_metric metric_name, 'Workers/Busy',    stats[:current_using]
-      report_metric metric_name, 'Workers/Waiting', stats[:current_waiting]
-
-      report_metric metric_name, 'TotalWorkers',    stats[:current_watching]
-
-      report_metric metric_name, 'IdleJobsPerWorker',  (stats[:current_jobs_ready] / stats[:current_watching]) if stats[:current_watching] > 0
-      report_metric metric_name, 'PercentBusyWorkers', percent_busy
-      report_metric metric_name, 'PercentIdleWorkers', percent_idle
-      report_metric metric_name, 'WaitTime',           percent_idle > 0 ? percent_busy / percent_idle : 100
+      report_metric metric_prefix + 'Jobs/Urgent',        nil, stats[:current_jobs_urgent]
+      report_metric metric_prefix + 'Jobs/Idle',          nil, stats[:current_jobs_ready]
+      report_metric metric_prefix + 'Jobs/Running',       nil, stats[:current_jobs_reserved]
+      report_metric metric_prefix + 'Jobs/Delayed',       nil, stats[:current_jobs_delayed]
+      report_metric metric_prefix + 'Jobs/Buried',        nil, stats[:current_jobs_buried]
+      report_metric metric_prefix + 'TotalJobs',          nil, stats[:total_jobs]
+      report_metric metric_prefix + 'Workers/Busy',       nil, stats[:current_using]
+      report_metric metric_prefix + 'Workers/Waiting',    nil, stats[:current_waiting]
+      report_metric metric_prefix + 'TotalWorkers',       nil, stats[:current_watching]
+      report_metric metric_prefix + 'IdleJobsPerWorker',  nil, (stats[:current_jobs_ready] / stats[:current_watching]) if stats[:current_watching] > 0
+      report_metric metric_prefix + 'PercentBusyWorkers', nil, percent_busy
+      report_metric metric_prefix + 'PercentIdleWorkers', nil, percent_idle
     end
 
     def report_server_metrics(metric, stats)
-      metric_name = "Beanstalkd/#{metric}"
+      metric_prefix = "Beanstalkd/#{metric}/"
 
       percent_busy = stats[:current_workers] > 0 ? (stats[:current_jobs_reserved] / stats[:current_workers]) * 100 : 0
       percent_idle = 100 - percent_busy
 
-      report_metric metric_name, 'Jobs/Urgent',     stats[:current_jobs_urgent]
-      report_metric metric_name, 'Jobs/Idle',       stats[:current_jobs_ready]
-      report_metric metric_name, 'Jobs/Running',    stats[:current_jobs_reserved]
-      report_metric metric_name, 'Jobs/Delayed',    stats[:current_jobs_delayed]
-      report_metric metric_name, 'Jobs/Buried',     stats[:current_jobs_buried]
-
-      report_metric metric_name, 'TotalJobs',       stats[:total_jobs]
-
-      report_metric metric_name, 'Workers/Busy',    stats[:current_using]
-      report_metric metric_name, 'Workers/Waiting', stats[:current_waiting]
-
-      report_metric metric_name, 'CurrentWorkers',     stats[:current_workers]
-      report_metric metric_name, 'Tubes',              stats[:current_tubes]
-      report_metric metric_name, 'CurrentConnections', stats[:current_connections]
-      report_metric metric_name, 'CurrentProducers',   stats[:current_producers]
-
-      report_metric metric_name, 'WaitingWorkers', stats[:current_waiting]
-      report_metric metric_name, 'Uptime[s]', stats[:uptime]
-      report_metric metric_name, 'PercentBusyWorkers', percent_busy
-      report_metric metric_name, 'PercentIdleWorkers', percent_idle
-      report_metric metric_name, 'WaitTime', percent_idle > 0 ? percent_busy / percent_idle : 100
+      report_metric metric_prefix + 'Jobs/Urgent',        nil, stats[:current_jobs_urgent]
+      report_metric metric_prefix + 'Jobs/Idle',          nil, stats[:current_jobs_ready]
+      report_metric metric_prefix + 'Jobs/Running',       nil, stats[:current_jobs_reserved]
+      report_metric metric_prefix + 'Jobs/Delayed',       nil, stats[:current_jobs_delayed]
+      report_metric metric_prefix + 'Jobs/Buried',        nil, stats[:current_jobs_buried]
+      report_metric metric_prefix + 'TotalJobs',          nil, stats[:total_jobs]
+      report_metric metric_prefix + 'Workers/Busy',       nil, stats[:current_using]
+      report_metric metric_prefix + 'Workers/Waiting',    nil, stats[:current_waiting]
+      report_metric metric_prefix + 'CurrentWorkers',     nil, stats[:current_workers]
+      report_metric metric_prefix + 'Tubes',              nil, stats[:current_tubes]
+      report_metric metric_prefix + 'CurrentConnections', nil, stats[:current_connections]
+      report_metric metric_prefix + 'CurrentProducers',   nil, stats[:current_producers]
+      report_metric metric_prefix + 'WaitingWorkers',     nil, stats[:current_waiting]
+      report_metric metric_prefix + 'Uptime',             's', stats[:uptime]
+      report_metric metric_prefix + 'PercentBusyWorkers', nil, percent_busy
+      report_metric metric_prefix + 'PercentIdleWorkers', nil, percent_idle
     end
   end
 
