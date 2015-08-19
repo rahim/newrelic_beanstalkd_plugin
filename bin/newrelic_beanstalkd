@@ -83,7 +83,6 @@ module BeanstalkdPlugin
 
       report_metric metric_prefix + 'TotalJobs',           nil, stats[:total_jobs]
 
-      report_metric metric_prefix + 'Current/Using',       nil, stats[:current_using]
       report_metric metric_prefix + 'Current/Waiting',     nil, stats[:current_waiting]
       report_metric metric_prefix + 'Current/Workers',     nil, stats[:current_workers]
       report_metric metric_prefix + 'Current/Tubes',       nil, stats[:current_tubes]
